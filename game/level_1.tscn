@@ -64,9 +64,10 @@ transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 1.7
 script = ExtResource("3_t3gvp")
 fp_responsiveness = 0.95
 
-[node name="player" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("4_wd65d")]
+[node name="player" parent="." node_paths=PackedStringArray("camera", "grabber") instance=ExtResource("4_wd65d")]
 transform = Transform3D(-1, 0, 8.74232e-08, 0, 1, 0, -8.74232e-08, 0, -1, 1.72335e-07, 2, -1.97128)
 camera = NodePath("../Camera3D")
+grabber = NodePath("grabber")
 
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 4.64251, 50.3054)
