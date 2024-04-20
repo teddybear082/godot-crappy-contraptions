@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://d0bndvyxq2j7a"]
+[gd_scene load_steps=10 format=4 uid="uid://d0bndvyxq2j7a"]
 
 [ext_resource type="Script" path="res://phys/safe_area.gd" id="1_si5a5"]
 [ext_resource type="Material" uid="uid://d1dcxbgx8kga7" path="res://materials/test_grid_grey.tres" id="2_o7et7"]
@@ -25,7 +25,6 @@ ssao_intensity = 1.5
 glow_normalized = true
 glow_strength = 0.5
 glow_bloom = 1.0
-fog_enabled = true
 fog_density = 0.0
 fog_aerial_perspective = 1.0
 fog_height = -0.5
