@@ -29,7 +29,6 @@ glow_bloom = 0.5
 glow_blend_mode = 0
 glow_hdr_threshold = 2.25
 glow_hdr_luminance_cap = 24.0
-fog_enabled = true
 fog_density = 0.0
 fog_aerial_perspective = 1.0
 fog_height = -0.5
