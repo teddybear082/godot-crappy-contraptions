@@ -110,7 +110,7 @@ var _controller  : XRController3D
 var _active_controller : XRController3D
 
 # Reference to XR Helpers script
-var XRHelpers = load("res://xr_helpers.gd").new()
+var XRHelpers = load("res://xr_injector/xr_helpers.gd").new()
 ## Add support for is_xr_class on XRTools classes
 func is_xr_class(name : String) -> bool:
 	return name == "XRToolsFunctionPointer"
