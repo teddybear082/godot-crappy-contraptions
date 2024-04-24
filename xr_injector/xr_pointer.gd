@@ -84,7 +84,7 @@ const SUPPRESS_MASK := 0b0000_0000_0100_0000_0000_0000_0000_0000
 @export_flags_3d_physics var suppress_mask : int = SUPPRESS_MASK: set = set_suppress_mask
 
 ## Hack for Using XRToolsPointerEvent without custom classes
-@onready var XRToolsPointerEvent = preload("res://xr_pointer_event.gd").new()
+@onready var XRToolsPointerEvent = preload("res://xr_injector/xr_pointer_event.gd").new()
 ## Current target node
 var target : Node3D = null
 
