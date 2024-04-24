@@ -244,3 +244,8 @@ reflections/sky_reflections/ggx_samples=16
 shading/overrides/force_lambert_over_burley=true
 textures/default_filters/anisotropic_filtering_level=3
 occlusion_culling/use_occlusion_culling=true
+
+[xr]
+
+openxr/enabled=true
+shaders/enabled=true
