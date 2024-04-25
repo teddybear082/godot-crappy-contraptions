@@ -202,6 +202,7 @@ var autosave_action_map_duration_in_secs : int = 0
 var use_vostok_gun_finding_code : bool = false
 var use_beton_gun_finding_code : bool = false
 var use_tar_object_picker_finding_code : bool = false
+var find_crappy_contraptions_player_body : bool = true
 
 func _ready() -> void:
 	set_process(false)
@@ -340,13 +341,18 @@ func _eval_tree() -> void:
 	xr_camera_3d.attributes.dof_blur_near_enabled = false
 	xr_camera_3d.attributes.dof_blur_far_enabled = false
 	
+	
 	# If using roomscale, find current characterbody parent of camera, if any, then send to roomscale controller and enable it
 	if !is_instance_valid(current_roomscale_character_body) and use_roomscale == true:
-		current_roomscale_character_body = find_and_set_player_characterbody3d_or_null()
+		if find_crappy_contraptions_player_body:
+			current_roomscale_character_body = _get_crappy_contraptions_player_body_or_null()
+		else:
+			current_roomscale_character_body = find_and_set_player_characterbody3d_or_null()
 		
 		# If we now found a roomscale body, reparent xr origin 3D to character body
 		if is_instance_valid(current_roomscale_character_body) and xr_origin_reparented == false:
-			current_camera_remote_transform.remote_path = ""
+			if is_instance_valid(current_camera_remote_transform):
+				current_camera_remote_transform.remote_path = ""
 			remove_child(xr_origin_3d)
 			current_roomscale_character_body.add_child(xr_origin_3d)
 			xr_origin_3d.transform.origin.y = 0.0
@@ -1468,3 +1474,12 @@ func _set_tar_object_picker(delta : float):
 			xr_reparenting_active = true
 			var rotate_reparented_node_180_degrees = false
 			handle_node_reparenting(delta, object_picker_point, rotate_reparented_node_180_degrees)
+
+# Specific to crappy contraptions
+func _get_crappy_contraptions_player_body_or_null():
+	var potential_character_bodies : Array = get_node("/root").find_children("*", "CharacterBody3D", true, false)
+	for body in potential_character_bodies:
+		if body.name.to_lower().contains("player"):
+			print("Winning characterbody from _get_crappy_contraptions_player_body_or_null: ", body)
+			return body
+	return null
