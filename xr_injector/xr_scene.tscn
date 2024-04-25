@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=4 uid="uid://e4ctdupwya3a"]
+[gd_scene load_steps=14 format=4 uid="uid://e4ctdupwya3a"]
 
 [ext_resource type="Script" path="res://xr_injector/xr_scene.gd" id="1_fmh2y"]
 [ext_resource type="PackedScene" uid="uid://i1hto5hirreh" path="res://xr_injector/xr_pointer.tscn" id="2_l282w"]
@@ -9,7 +9,6 @@
 [ext_resource type="Script" path="res://xr_injector/xr_config_handler.gd" id="5_jiibt"]
 [ext_resource type="Script" path="res://xr_injector/xr_physical_movement_controller.gd" id="6_1wyxn"]
 [ext_resource type="Script" path="res://xr_injector/xr_radial_menu.gd" id="7_hw5k1"]
-[ext_resource type="PackedScene" uid="uid://x0xxleun8ha0" path="res://xr_injector/xr_options_menu.tscn" id="10_cjn2i"]
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_pnlj8"]
 resource_local_to_scene = true
@@ -63,6 +62,7 @@ shape = SubResource("SphereShape3D_10cyd")
 
 [node name="WelcomeLabel3D" type="Label3D" parent="XROrigin3D/XRCamera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3, -2)
+visible = false
 render_priority = 1
 modulate = Color(0.854902, 0.866667, 0.211765, 1)
 text = "Welcome to the earliest alpha of Godot Universal VR Injector! (UGVR)
@@ -134,7 +134,6 @@ process_mode = 3
 visible = false
 enabled = false
 collision_layer = 4194304
-scene = ExtResource("10_cjn2i")
 viewport_size = Vector2(1920, 1080)
 transparent = 0
 unshaded = true

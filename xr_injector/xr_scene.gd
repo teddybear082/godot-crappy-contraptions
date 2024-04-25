@@ -108,7 +108,7 @@ var gesture_set_user_height_button = "by_button"
 var gesture_toggle_active_camera_button = "ax_button"
 
 # Button to activate dpad alternative binding for joystick, start and select buttons
-var dpad_activation_button = "primary_touch"
+var dpad_activation_button = "primary_click"
 
 # Start button (when toggle active)
 var start_button = "primary_click"
@@ -123,15 +123,26 @@ var ugvr_menu_toggle_combo : Dictionary = {}
 var primary_controller_selection : String = "right"
 
 # Variables to hold mapping other events necessary for gamepad emulation with motion controllers
-var primary_action_map : Dictionary
-var secondary_action_map : Dictionary
+var primary_action_map : Dictionary = {
+		"grip_click":JOY_BUTTON_RIGHT_SHOULDER,
+		"primary_click":JOY_BUTTON_RIGHT_STICK,
+		"ax_button":JOY_BUTTON_A,
+		"by_button":JOY_BUTTON_X
+	}
+
+var secondary_action_map : Dictionary = {
+		"grip_click":JOY_BUTTON_LEFT_SHOULDER,
+		"primary_click":JOY_BUTTON_LEFT_STICK,
+		"ax_button":JOY_BUTTON_B,
+		"by_button":JOY_BUTTON_Y
+	}
 
 # Additional user config variables
 var xr_world_scale : float = 1.0
 var experimental_passthrough : bool = false
 var disable_2d_ui : bool = false  # Not presently in config - ever give option?
 var gui_embed_subwindows : bool = false # Not presently in config - ever give option?
-var show_welcome_label : bool = true
+var show_welcome_label : bool = false
 var use_physical_gamepad_only : bool = false
 var stick_emulate_mouse_movement : bool = false
 var head_emulate_mouse_movement : bool = false # Not presently working
@@ -141,11 +152,11 @@ var emulated_mouse_sensitivity_multiplier : int = 10
 var emulated_mouse_deadzone : float = 0.25
 
 # Roomscale movement configs
-var use_roomscale : bool = false
+var use_roomscale : bool = true
 var roomscale_height_adjustment : float = 0.0
 var attempt_to_use_camera_to_set_roomscale_height : bool = false
 var reverse_roomscale_direction : bool = false
-var use_roomscale_3d_cursor : bool = false
+var use_roomscale_3d_cursor : bool = true
 var use_long_range_3d_cursor : bool = false
 var roomscale_3d_cursor_distance_from_camera : float = 2.0
 var roomscale_long_range_3d_cursor_distance_from_camera : float = 20.0
@@ -215,16 +226,16 @@ func _ready() -> void:
 	xr_autosave_timer.connect("timeout", Callable(self, "_on_xr_autosave_timer_timeout"))
 	xr_physical_movement_controller.connect("tree_exiting", Callable(self, "_on_xr_origin_exiting_tree"))
 	xr_radial_menu.connect("entry_selected", Callable(self, "_on_xr_radial_menu_entry_selected"))
-	xr_config_handler.connect("xr_game_options_cfg_loaded", Callable(self, "_on_xr_config_handler_xr_game_options_cfg_loaded"))
-	xr_config_handler.connect("xr_game_control_map_cfg_loaded", Callable(self, "_on_xr_config_handler_xr_game_control_map_cfg_loaded"))
-	xr_config_handler.connect("xr_game_action_map_cfg_loaded", Callable(self, "_on_xr_config_handler_xr_game_action_map_cfg_loaded"))
-	xr_config_handler.connect("xr_game_options_cfg_saved", Callable(self, "_on_xr_config_handler_xr_game_options_cfg_saved"))
-	xr_config_handler.connect("xr_game_control_map_cfg_saved", Callable(self, "_on_xr_config_handler_xr_game_control_map_cfg_saved"))
-	xr_config_handler.connect("xr_game_action_map_cfg_saved", Callable(self, "_on_xr_config_handler_xr_game_action_map_cfg_saved"))
+	#xr_config_handler.connect("xr_game_options_cfg_loaded", Callable(self, "_on_xr_config_handler_xr_game_options_cfg_loaded"))
+	#xr_config_handler.connect("xr_game_control_map_cfg_loaded", Callable(self, "_on_xr_config_handler_xr_game_control_map_cfg_loaded"))
+	#xr_config_handler.connect("xr_game_action_map_cfg_loaded", Callable(self, "_on_xr_config_handler_xr_game_action_map_cfg_loaded"))
+	#xr_config_handler.connect("xr_game_options_cfg_saved", Callable(self, "_on_xr_config_handler_xr_game_options_cfg_saved"))
+	#xr_config_handler.connect("xr_game_control_map_cfg_saved", Callable(self, "_on_xr_config_handler_xr_game_control_map_cfg_saved"))
+	#xr_config_handler.connect("xr_game_action_map_cfg_saved", Callable(self, "_on_xr_config_handler_xr_game_action_map_cfg_saved"))
 	
 	# Set up config handler to use ugvr menu 2d scene, and ugvr menu 2d scene to recognize config handler
-	xr_config_handler.set_ugvr_gui_menu_2d(ugvr_menu_2d)
-	xr_config_handler.set_ugvr_menu_viewport(ugvr_menu_viewport)
+	#xr_config_handler.set_ugvr_gui_menu_2d(ugvr_menu_2d)
+	#xr_config_handler.set_ugvr_menu_viewport(ugvr_menu_viewport)
 	#ugvr_menu_2d.set_config_handler(xr_config_handler) # Not working yet, no script attached to ugvr menu yet
 	
 	# Set up unshaded material for pointers and cursor3D objects
@@ -527,15 +538,15 @@ func handle_secondary_xr_inputs(button):
 	#print("secondary button pressed: ", button)
 
 	# If pressing pointer activation button and making gesture, toggle UGVR menu
-	if button == pointer_gesture_toggle_button and gesture_area.overlaps_area(secondary_detection_area):
-		ugvr_menu_viewport.global_transform = ugvr_menu_holder.global_transform
-		ugvr_menu_viewport.visible = !ugvr_menu_viewport.visible
-		ugvr_menu_viewport.set_enabled(!ugvr_menu_viewport.enabled)
-		ugvr_menu_showing = ugvr_menu_viewport.enabled
-		if ugvr_menu_showing:
-			xr_pointer.collision_mask = 4194304 # layer 23 - layer ugvr menu is now on
-		else:
-			xr_pointer.collision_mask = 1048576 #  layer 21 - layer the other two viewports are now on
+	#if button == pointer_gesture_toggle_button and gesture_area.overlaps_area(secondary_detection_area):
+		#ugvr_menu_viewport.global_transform = ugvr_menu_holder.global_transform
+		#ugvr_menu_viewport.visible = !ugvr_menu_viewport.visible
+		#ugvr_menu_viewport.set_enabled(!ugvr_menu_viewport.enabled)
+		#ugvr_menu_showing = ugvr_menu_viewport.enabled
+		#if ugvr_menu_showing:
+			#xr_pointer.collision_mask = 4194304 # layer 23 - layer ugvr menu is now on
+		#else:
+			#xr_pointer.collision_mask = 1048576 #  layer 21 - layer the other two viewports are now on
 
 	# If button is assigned to load action map (temporary,this should be a GUI option) and making gesture, load action map
 	if button == gesture_load_action_map_button and gesture_area.overlaps_area(secondary_detection_area):
@@ -869,6 +880,12 @@ func _on_xr_started():
 	
 	# Set Viewport sizes and locations for GUI
 	setup_viewports()
+	
+	# Set up controllers
+	var finished = map_xr_controllers_to_action_map()
+	
+	# Set up other game options
+	set_xr_game_options()
 	
 	set_process(true)
 
@@ -1276,36 +1293,36 @@ func find_and_set_player_characterbody3d_or_null():
 # Function to pull current state of config handler game options variables to set same xr scene variables based on user config
 func set_xr_game_options():
 	# Load camera options
-	xr_world_scale = xr_config_handler.xr_world_scale
-	camera_offset = xr_config_handler.camera_offset
-	experimental_passthrough = xr_config_handler.experimental_passthrough
-
-	# Load viewport options
-	xr_main_viewport_location = xr_config_handler.xr_main_viewport_location
-	xr_secondary_viewport_location = xr_config_handler.xr_secondary_viewport_location
-	primary_viewport_size_multiplier = xr_config_handler.primary_viewport_size_multiplier
-	secondary_viewport_size_multiplier = xr_config_handler.secondary_viewport_size_multiplier
-	primary_viewport_offset = xr_config_handler.primary_viewport_offset
-	secondary_viewport_offset = xr_config_handler.secondary_viewport_offset
-
-	# Load roomscale options
-	use_roomscale = xr_config_handler.use_roomscale
-	roomscale_height_adjustment = xr_config_handler.roomscale_height_adjustment
-	attempt_to_use_camera_to_set_roomscale_height = xr_config_handler.attempt_to_use_camera_to_set_roomscale_height
-	reverse_roomscale_direction = xr_config_handler.reverse_roomscale_direction
-	use_roomscale_3d_cursor = xr_config_handler.use_roomscale_3d_cursor
-	use_long_range_3d_cursor = xr_config_handler.use_long_range_3d_cursor
-	roomscale_3d_cursor_distance_from_camera = xr_config_handler.roomscale_3d_cursor_distance_from_camera
-	roomscale_long_range_3d_cursor_distance_from_camera = xr_config_handler.roomscale_long_range_3d_cursor_distance_from_camera
-	use_arm_swing_jump = xr_config_handler.use_arm_swing_jump
-	use_jog_movement = xr_config_handler.use_jog_movement
-	jog_triggers_sprint = xr_config_handler.jog_triggers_sprint
-	
-	# Load autosave options
-	autosave_action_map_duration_in_secs = xr_config_handler.autosave_action_map_duration_in_secs
-	
-	# Load xr injector GUI options
-	show_welcome_label = xr_config_handler.show_welcome_label
+	#xr_world_scale = xr_config_handler.xr_world_scale
+	#camera_offset = xr_config_handler.camera_offset
+	#experimental_passthrough = xr_config_handler.experimental_passthrough
+#
+	## Load viewport options
+	#xr_main_viewport_location = xr_config_handler.xr_main_viewport_location
+	#xr_secondary_viewport_location = xr_config_handler.xr_secondary_viewport_location
+	#primary_viewport_size_multiplier = xr_config_handler.primary_viewport_size_multiplier
+	#secondary_viewport_size_multiplier = xr_config_handler.secondary_viewport_size_multiplier
+	#primary_viewport_offset = xr_config_handler.primary_viewport_offset
+	#secondary_viewport_offset = xr_config_handler.secondary_viewport_offset
+#
+	## Load roomscale options
+	#use_roomscale = xr_config_handler.use_roomscale
+	#roomscale_height_adjustment = xr_config_handler.roomscale_height_adjustment
+	#attempt_to_use_camera_to_set_roomscale_height = xr_config_handler.attempt_to_use_camera_to_set_roomscale_height
+	#reverse_roomscale_direction = xr_config_handler.reverse_roomscale_direction
+	#use_roomscale_3d_cursor = xr_config_handler.use_roomscale_3d_cursor
+	#use_long_range_3d_cursor = xr_config_handler.use_long_range_3d_cursor
+	#roomscale_3d_cursor_distance_from_camera = xr_config_handler.roomscale_3d_cursor_distance_from_camera
+	#roomscale_long_range_3d_cursor_distance_from_camera = xr_config_handler.roomscale_long_range_3d_cursor_distance_from_camera
+	#use_arm_swing_jump = xr_config_handler.use_arm_swing_jump
+	#use_jog_movement = xr_config_handler.use_jog_movement
+	#jog_triggers_sprint = xr_config_handler.jog_triggers_sprint
+	#
+	## Load autosave options
+	#autosave_action_map_duration_in_secs = xr_config_handler.autosave_action_map_duration_in_secs
+	#
+	## Load xr injector GUI options
+	#show_welcome_label = xr_config_handler.show_welcome_label
 	
 	# Set XR worldscale based on config
 	xr_origin_3d.world_scale = xr_world_scale
@@ -1324,17 +1341,19 @@ func set_xr_game_options():
 		await get_tree().create_timer(10.0).timeout
 		welcome_label_3d.hide()
 		welcome_label_already_shown = true
+	else:
+		welcome_label_3d.hide()
 		
 	# Start autosave config timer, at some point only set this in the config file loaded or created signal but just for testing for now
 	# Setting to 0 will disable autosave
-	if xr_config_handler.autosave_action_map_duration_in_secs != 0:
-		xr_autosave_timer.wait_time = xr_config_handler.autosave_action_map_duration_in_secs
-		if xr_autosave_timer.is_paused():
-			xr_autosave_timer.set_paused(false)
-		xr_autosave_timer.start()
-	else:
-		if not xr_autosave_timer.is_stopped():
-			xr_autosave_timer.set_paused(true)
+	#if xr_config_handler.autosave_action_map_duration_in_secs != 0:
+		#xr_autosave_timer.wait_time = xr_config_handler.autosave_action_map_duration_in_secs
+		#if xr_autosave_timer.is_paused():
+			#xr_autosave_timer.set_paused(false)
+		#xr_autosave_timer.start()
+	#else:
+		#if not xr_autosave_timer.is_stopped():
+			#xr_autosave_timer.set_paused(true)
 
 # Function to set proper world scale for various nodes that depend on sizes and distances
 func set_worldscale_for_xr_nodes(new_xr_world_scale):
@@ -1350,70 +1369,70 @@ func set_worldscale_for_xr_nodes(new_xr_world_scale):
 	right_gesture_detection_area.get_node("ControllerGestureShape").shape.margin = 0.04 * new_xr_world_scale
 	
 # Function to pull current state of config handler control options variables to set same xr scene variables based on user config	
-func set_xr_control_options():
-	# Load base control maps
-	primary_action_map = xr_config_handler.primary_action_map
-	secondary_action_map = xr_config_handler.secondary_action_map
-	
-	# Load mouse emulation options
-	stick_emulate_mouse_movement = xr_config_handler.stick_emulate_mouse_movement
-	head_emulate_mouse_movement = xr_config_handler.head_emulate_mouse_movement
-	primary_controller_emulate_mouse_movement = xr_config_handler.primary_controller_emulate_mouse_movement
-	secondary_controller_emulate_mouse_movement = xr_config_handler.secondary_controller_emulate_mouse_movement
-	emulated_mouse_sensitivity_multiplier = xr_config_handler.emulated_mouse_sensitivity_multiplier
-	emulated_mouse_deadzone = xr_config_handler.emulated_mouse_deadzone
-	
-	# Load other control options
-	turning_type = xr_config_handler.turning_type
-	turning_speed = xr_config_handler.turning_speed
-	turning_degrees = xr_config_handler.turning_degrees
-	stick_turn_controller = xr_config_handler.stick_turn_controller
-	grip_deadzone = xr_config_handler.grip_deadzone
-	primary_controller_selection = xr_config_handler.primary_controller_selection
-	ugvr_menu_toggle_combo = xr_config_handler.ugvr_menu_toggle_combo
-	pointer_gesture_toggle_button = xr_config_handler.pointer_gesture_toggle_button
-	gesture_load_action_map_button = xr_config_handler.gesture_load_action_map_button
-	gesture_set_user_height_button = xr_config_handler.gesture_set_user_height_button
-	dpad_activation_button = xr_config_handler.dpad_activation_button
-	start_button = xr_config_handler.start_button
-	select_button = xr_config_handler.select_button
-	use_physical_gamepad_only = xr_config_handler.use_physical_gamepad_only
-	
-	# Set up xr controllers to emulate gamepad
-	var finished = map_xr_controllers_to_action_map()
+#func set_xr_control_options():
+	## Load base control maps
+	#primary_action_map = xr_config_handler.primary_action_map
+	#secondary_action_map = xr_config_handler.secondary_action_map
+	#
+	## Load mouse emulation options
+	#stick_emulate_mouse_movement = xr_config_handler.stick_emulate_mouse_movement
+	#head_emulate_mouse_movement = xr_config_handler.head_emulate_mouse_movement
+	#primary_controller_emulate_mouse_movement = xr_config_handler.primary_controller_emulate_mouse_movement
+	#secondary_controller_emulate_mouse_movement = xr_config_handler.secondary_controller_emulate_mouse_movement
+	#emulated_mouse_sensitivity_multiplier = xr_config_handler.emulated_mouse_sensitivity_multiplier
+	#emulated_mouse_deadzone = xr_config_handler.emulated_mouse_deadzone
+	#
+	## Load other control options
+	#turning_type = xr_config_handler.turning_type
+	#turning_speed = xr_config_handler.turning_speed
+	#turning_degrees = xr_config_handler.turning_degrees
+	#stick_turn_controller = xr_config_handler.stick_turn_controller
+	#grip_deadzone = xr_config_handler.grip_deadzone
+	#primary_controller_selection = xr_config_handler.primary_controller_selection
+	#ugvr_menu_toggle_combo = xr_config_handler.ugvr_menu_toggle_combo
+	#pointer_gesture_toggle_button = xr_config_handler.pointer_gesture_toggle_button
+	#gesture_load_action_map_button = xr_config_handler.gesture_load_action_map_button
+	#gesture_set_user_height_button = xr_config_handler.gesture_set_user_height_button
+	#dpad_activation_button = xr_config_handler.dpad_activation_button
+	#start_button = xr_config_handler.start_button
+	#select_button = xr_config_handler.select_button
+	#use_physical_gamepad_only = xr_config_handler.use_physical_gamepad_only
+	#
+	## Set up xr controllers to emulate gamepad
+	#var finished = map_xr_controllers_to_action_map()
 
 # Function to pull current state of config handler action map variables to set same xr scene variables based on user config	
-func set_xr_action_map_options():
-	use_xr_radial_menu = xr_config_handler.use_xr_radial_menu
-	xr_radial_menu_mode = xr_config_handler.xr_radial_menu_mode
-	xr_radial_menu_entries = xr_config_handler.xr_radial_menu_entries
-	open_radial_menu_button = xr_config_handler.open_radial_menu_button
-	setup_radial_menu()
-	ugvr_menu_2d.connect_option_button_chidren_signals()
+#func set_xr_action_map_options():
+	#use_xr_radial_menu = xr_config_handler.use_xr_radial_menu
+	#xr_radial_menu_mode = xr_config_handler.xr_radial_menu_mode
+	#xr_radial_menu_entries = xr_config_handler.xr_radial_menu_entries
+	#open_radial_menu_button = xr_config_handler.open_radial_menu_button
+	#setup_radial_menu()
+	#ugvr_menu_2d.connect_option_button_chidren_signals()
 	
 # Receiver function for config file signal that game options have been loaded
-func _on_xr_config_handler_xr_game_options_cfg_loaded(_path_to_file : String):
-	set_xr_game_options()
-	
-# Reciever function for config file signal that control options have been loaded
-func _on_xr_config_handler_xr_game_control_map_cfg_loaded(_path_to_file : String):
-	set_xr_control_options()
-
-# Reciever function for config file signal that action map options have been loaded	
-func _on_xr_config_handler_xr_game_action_map_cfg_loaded(_path_to_file : String):
-	set_xr_action_map_options()
-	
-# Receiver function for config file signal that game options have been saved
-func _on_xr_config_handler_xr_game_options_cfg_saved(_path_to_file : String):
-	set_xr_game_options()
-	
-# Reciever function for config file signal that control options have been saved
-func _on_xr_config_handler_xr_game_control_map_cfg_saved(_path_to_file : String):
-	set_xr_control_options()
-
-# Reciever function for config file signal that action map options have been saved	
-func _on_xr_config_handler_xr_game_action_map_cfg_saved(_path_to_file : String):
-	set_xr_action_map_options()
+#func _on_xr_config_handler_xr_game_options_cfg_loaded(_path_to_file : String):
+	#set_xr_game_options()
+	#
+## Reciever function for config file signal that control options have been loaded
+#func _on_xr_config_handler_xr_game_control_map_cfg_loaded(_path_to_file : String):
+	#set_xr_control_options()
+#
+## Reciever function for config file signal that action map options have been loaded	
+#func _on_xr_config_handler_xr_game_action_map_cfg_loaded(_path_to_file : String):
+	#set_xr_action_map_options()
+	#
+## Receiver function for config file signal that game options have been saved
+#func _on_xr_config_handler_xr_game_options_cfg_saved(_path_to_file : String):
+	#set_xr_game_options()
+	#
+## Reciever function for config file signal that control options have been saved
+#func _on_xr_config_handler_xr_game_control_map_cfg_saved(_path_to_file : String):
+	#set_xr_control_options()
+#
+## Reciever function for config file signal that action map options have been saved	
+#func _on_xr_config_handler_xr_game_action_map_cfg_saved(_path_to_file : String):
+	#set_xr_action_map_options()
 
 
 
